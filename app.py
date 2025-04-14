@@ -4,13 +4,6 @@ import timm
 from PIL import Image
 import os
 from utils import transform_image, predict_health, predict_disease
-import gdown
-
-def download_model_if_needed(model_path, drive_id):
-    if not os.path.exists(model_path):
-        print(f"Downloading model to {model_path}...")
-        url = f"https://drive.google.com/uc?id={drive_id}"
-        gdown.download(url, model_path, quiet=False)
 
 # Setup
 app = Flask(__name__)
@@ -24,13 +17,15 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 MODEL_FOLDER = 'model'
 os.makedirs(MODEL_FOLDER, exist_ok=True)
 
-# File paths
+# File paths (Assume these files are already present)
 health_model_path = os.path.join(MODEL_FOLDER, 'vit_fish_disease.pth')
 disease_model_path = os.path.join(MODEL_FOLDER, 'classe.pth')
 
-# ✅ Download models from Google Drive if needed
-download_model_if_needed(health_model_path, '1O6zx068_RdRDxLCqWdsr339UPpsB9F5F')
-download_model_if_needed(disease_model_path, '11NQr_bJQ1GFDTEp4GH-Yp5caRJfcsNR4')
+# Check if models exist
+if not os.path.exists(health_model_path):
+    raise FileNotFoundError(f"Health model not found at {health_model_path}")
+if not os.path.exists(disease_model_path):
+    raise FileNotFoundError(f"Disease model not found at {disease_model_path}")
 
 # Load models
 health_model = timm.create_model("vit_base_patch16_224", pretrained=False, num_classes=2)
@@ -57,7 +52,7 @@ def predict():
         if uploaded_file.filename != '':
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file.filename)
             uploaded_file.save(file_path)
-            
+
             health_status = predict_health(file_path, health_model, device)
 
             if health_status == "Sick":
@@ -80,6 +75,5 @@ def predict():
         return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))  # Use PORT env var if available (e.g., Render)
+    port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
-
