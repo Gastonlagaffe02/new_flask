@@ -1,0 +1,8 @@
+Flask
+torch
+timm
+Pillow
+torchvision
+gdown
+gunicorn
+
