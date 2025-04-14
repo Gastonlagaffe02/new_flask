@@ -13,13 +13,9 @@ UPLOAD_FOLDER = './static/uploads/'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Model folder
-MODEL_FOLDER = 'model'
-os.makedirs(MODEL_FOLDER, exist_ok=True)
-
-# File paths (Assume these files are already present)
-health_model_path = os.path.join(MODEL_FOLDER, 'vit_fish_disease.pth')
-disease_model_path = os.path.join(MODEL_FOLDER, 'classe.pth')
+# File paths (models are in the same directory as app.py)
+health_model_path = 'vit_fish_disease.pth'
+disease_model_path = 'classe.pth'
 
 # Check if models exist
 if not os.path.exists(health_model_path):
